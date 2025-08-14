@@ -76,7 +76,7 @@ To make working with logs more convenient, you can add the following aliases to 
 # Net logging
 alias here-london='echo flat_london > ~/.current_location; export MY_PLACE=$(cat ~/.current_location 2>/dev/null)'
 alias here-toronto='echo office_toronto > ~/.current_location; export MY_PLACE=$(cat ~/.current_location 2>/dev/null)'
-alias here-milan='echo casa_napoli > ~/.current_location; export MY_PLACE=$(cat ~/.current_location 2>/dev/null)'
+alias here-napoli='echo casa_napoli > ~/.current_location; export MY_PLACE=$(cat ~/.current_location 2>/dev/null)'
 
 alias whereami='cat ~/.current_location'
 
