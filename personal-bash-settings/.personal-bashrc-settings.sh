@@ -40,14 +40,12 @@ alias hgrep="history | grep"
 alias p3=python3
 alias upd="sudo apt update; sudo apt upgrade"
 alias dfh="df -h"
-alias dps="docker ps"
 alias clip="xsel --input --clipboard <"
 alias von="source .venv/bin/activate"
 alias voff="deactivate"
 alias htmlinit='inithtml.sh'
 
 alias cde="cd ~/Documents/English"
-
 
 alias jup="conda activate; jupyter notebook"
 alias ca='qalc'
@@ -58,6 +56,7 @@ alias alarm=~/scripts/inspire.sh
 alias version='lsb_release -a'
 alias ver='lsb_release -a'
 alias ipy='ipython3'
+alias pretty='prettier -write .'
 
 # Net logging
 alias here-gosprom='echo flat_gosprom > ~/.current_location; export MY_PLACE=$(cat ~/.location_tag 2>/dev/null)'
@@ -69,6 +68,9 @@ alias nettail='(head -n1 ~/.local/share/netlog/speedtest_log.csv && tail -n 10 ~
 
 ## --- Docker aliases --------------------------------------------------------
 
+# Список всех контейнеров (включая остановленные) и образов
+alias dstatus="docker ps -a && docker images"
+
 # Список всех контейнеров (включая остановленные)
 alias dpsa='docker ps -a'
 
@@ -76,19 +78,25 @@ alias dpsa='docker ps -a'
 alias dps='docker ps'
 
 # Удалить все остановленные контейнеры
-alias drm_all='docker container prune -f'
+alias drmall='docker container prune -f'
 
 # Удалить конкретный контейнер по имени/ID
 alias drm='docker rm'
 
 # Останавливает запущенный контейнер, если он единственный
-alias dstopone='bash ~/scripts/stop_the_only_running_docker_container.sh'
+# alias dstopone='bash ~/scripts/stop_the_only_running_docker_container.sh'
 
-# Запустить контейнер'
+# Останавливает все запущенные контейнеры
+alias dstopall="docker stop $(docker ps -q)"
+
+# Запустить (run) контейнер'
 alias drun='docker run'
 
 # Остановить контейнер
 alias dstop='docker stop'
+
+# Запусустить (start) контейнер
+alias dstart='docker stop'
 
 # Остановить контейнер жёстко
 alias dkill='docker kill'
@@ -113,8 +121,14 @@ function gccexe() {
 ## --- git setup -------------------------------------------------------------
 # git aliases
 alias gh='git log --pretty=format:"%C(yellow)%h %C(white)%ad | %C(green)%s%d %C(white)[%an]" --graph --date=short'
+alias gh1='gh -1'
+alias gh3='gh -3'
+alias gh5='gh -5'
 alias gha='gh --all'
 alias gl='git log --graph --all --pretty=format:"%C(yellow)%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit --date=relative'
+alias gl1='gl -1'
+alias gl3='gl -3'
+alias gl5='gl -5'
 alias gla='gl --all'
 alias gs='git status '
 alias ga='git add '
@@ -138,3 +152,8 @@ alias get='git '    	# handling typos
 parse_git_branch() {
  	git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 }
+
+## --- development -------------------------------------------------------------
+alias ml='make lint'
+alias mlf='make lint-fix'
+alias mt='make test'
