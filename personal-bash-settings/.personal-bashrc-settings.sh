@@ -1,13 +1,30 @@
 ### -----------------------------
 ### PROMPT
 ### -----------------------------
-# Git branch in prompt
+# Git branch + dirty flag
 parse_git_branch() {
-    git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+    local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    if [ -n "$branch" ]; then
+        local dirty=$(git status --porcelain 2>/dev/null)
+        if [ -n "$dirty" ]; then
+            echo "($branch*)"
+        else
+            echo "($branch)"
+        fi
+    fi
 }
 
-# PS1
-PS1="\[\e[32m\]\w \[\e[91m\]\$(parse_git_branch)\[\e[00m\]$ "
+# Python/Conda environment
+venv_prompt() {
+    if [ -n "$VIRTUAL_ENV" ]; then
+        echo "[venv:$(basename $VIRTUAL_ENV)]"
+    elif [ -n "$CONDA_DEFAULT_ENV" ]; then
+        echo "[conda:$CONDA_DEFAULT_ENV]"
+    fi
+}
+
+# Interactive PS1
+PS1="\[\e[32m\]\w \[\e[33m\]\$(venv_prompt) \[\e[91m\]\$(parse_git_branch)\[\e[00m\]\$ "
 
 ### -----------------------------
 ### PATH
@@ -24,7 +41,6 @@ export EDITOR=gnome-text-editor
 ### -----------------------------
 alias l="ls -1lh --group-directories-first --color=auto"
 alias la="ls -1lah --group-directories-first --color=auto"
-alias ls='ls --color=auto'
 alias md=mkdir
 alias cls=clear
 alias dirsize='du -h --max-depth=1'
@@ -36,9 +52,7 @@ alias hyber="systemctl suspend"
 alias ..="cd .."
 alias ...="cd ../.."
 alias na="nano -u"
-alias p3=python3
 alias tr="tree -I '__pycache__|tmp.*|node_modules|\.git|venv|env'"
-alias pss='(echo "F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD"; ps -el | grep "pts/[12]" | grep -v grep) | column -t'
 alias pi="ping example.com"
 alias ports='ss -tulpn'
 alias greph="grep --color=auto"
@@ -56,6 +70,11 @@ alias voff='command -v deactivate >/dev/null && deactivate || echo "No venv acti
 alias vmake='python3 -m venv .venv && echo "Virtual env created in .venv"'
 
 ### -----------------------------
+### CONDA & JUPYTER
+### -----------------------------
+alias jup='command -v conda >/dev/null && conda activate && jupyter notebook || echo "Conda not found"'
+
+### -----------------------------
 ### HTML / PROJECT
 ### -----------------------------
 alias htmlinit='inithtml.sh'
@@ -64,11 +83,7 @@ alias htmlinit='inithtml.sh'
 ### DIRECTORIES
 ### -----------------------------
 alias cde="cd ~/Documents/English"
-
-### -----------------------------
-### JUPYTER / CONDA
-### -----------------------------
-alias jup="conda activate && jupyter notebook"
+mdcd() { mkdir -p "$1" && cd "$1"; }
 
 ### -----------------------------
 ### CALCULATOR
@@ -84,9 +99,12 @@ alias gedit='gnome-text-editor'
 alias ipy='ipython3'
 
 ### -----------------------------
-### PRETTIER / CODE
+### CODE / PRETTIER
 ### -----------------------------
-alias pretty='prettier -write .'
+alias ml='make lint'
+alias mlf='make lint-fix'
+alias mt='make test'
+alias pretty='prettier --write .'
 
 ### -----------------------------
 ### ALARM
@@ -123,17 +141,13 @@ alias dstop='docker stop'
 alias dstart='docker start'
 alias dkill='docker kill'
 alias dimages='docker images'
+alias redis="docker start -ai my-redis"
+alias redis-cli="docker exec -it my-redis redis-cli"
 
 ### -----------------------------
 ### FUNCTIONS
 ### -----------------------------
-mdcd() {
-   mkdir -p "$1" && cd "$1";
-}
-
-gccexe() {
-    gcc "$1" -o "$(basename "$1" .c).exe"
-}
+gccexe() { gcc "$1" -o "$(basename "$1" .c).exe"; }
 
 port() {
     if [ -z "$1" ]; then
@@ -141,6 +155,12 @@ port() {
     else
         ss -tulpn | grep ":$1"
     fi
+}
+
+pss() {
+    local tty=$(tty | sed 's:/dev/::')
+    echo "F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD"
+    ps -el | grep "$tty" | grep -v grep | column -t
 }
 
 ### -----------------------------
@@ -171,5 +191,5 @@ alias gk='gitk --all &'
 alias gx='gitx --all'
 alias gp='git pull --rebase'
 alias gamend='git commit --amend --no-edit'
-alias got='git'     # handling typos
-alias get='git'     # handling typos
+alias got='git'
+alias get='git'
