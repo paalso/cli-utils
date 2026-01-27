@@ -44,6 +44,7 @@ alias la="ls -1lah --group-directories-first --color=auto"
 alias md=mkdir
 alias cls=clear
 alias dirsize='du -h --max-depth=1'
+alias duh='du -h --max-depth=1'
 alias ds='du -hc --max-depth=1'
 alias weather="curl -3 wttr.in/Kharkov"
 alias mem="free -m"
@@ -65,6 +66,9 @@ alias realusers="awk -F: '\$3 >= 1000 {print \$1, \$3}' /etc/passwd"
 alias lsusbblk='lsblk -o NAME,TRAN,SIZE,FSTYPE,LABEL,MOUNTPOINT,MODEL | grep -E "usb|NAME|sdb|sdc"'
 alias usbinfo=lsusbblk
 
+alias serve='python3 -m http.server 8000'
+alias serve-root='(cd ~ && python3 -m http.server 8000)'
+alias lns="cd ~/Courses/local-node-server/ && node server.js"
 ### -----------------------------
 ### VIRTUAL ENVIRONMENTS
 ### -----------------------------
@@ -166,6 +170,10 @@ pss() {
     local tty=$(tty | sed 's:/dev/::')
     echo "F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD"
     ps -el | grep "$tty" | grep -v grep | column -t
+}
+
+servep() {
+  python3 -m http.server "${1:-8000}"
 }
 
 ### -----------------------------
