@@ -2,7 +2,7 @@
 
 import random, sys
 
-BOOK_LIST_PATH = '/home/paalso/Books/books_selling/non-sold-books.txt'
+BOOK_LIST_PATH = '/home/paalso/Books/book-selling/non-sold-books.txt'
 DEFAULT_BOOKS_TO_CHOOSE_NUMBER = 5
 
 

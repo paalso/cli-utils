@@ -61,4 +61,3 @@ elif [[ -z $1 ]]; then
 else
     create_default_structure "$1"
 fi
-
