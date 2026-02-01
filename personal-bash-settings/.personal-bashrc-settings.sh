@@ -61,6 +61,9 @@ alias hgrep="history | grep"
 alias upd="sudo apt update && sudo apt upgrade"
 alias dfh="df -h"
 alias clip="xsel --input --clipboard <"
+alias realusers="awk -F: '\$3 >= 1000 {print \$1, \$3}' /etc/passwd"
+alias lsusbblk='lsblk -o NAME,TRAN,SIZE,FSTYPE,LABEL,MOUNTPOINT,MODEL | grep -E "usb|NAME|sdb|sdc"'
+alias usbinfo=lsusbblk
 
 ### -----------------------------
 ### VIRTUAL ENVIRONMENTS
