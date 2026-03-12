@@ -133,19 +133,21 @@ alias nettail='(head -n1 ~/.local/share/netlog/speedtest_log.csv && tail -n 10 ~
 ### -----------------------------
 ### DOCKER ALIASES
 ### -----------------------------
-alias dstatus="docker ps -a && docker images"
-alias dpsa='docker ps -a'
-alias dps='docker ps'
-alias drmall='docker container prune -f'
-alias drm='docker rm'
-alias dstopall="docker stop $(docker ps -q)"
-alias drun='docker run'
-alias dstop='docker stop'
-alias dstart='docker start'
-alias dkill='docker kill'
-alias dimages='docker images'
-alias redis="docker start -ai my-redis"
-alias redis-cli="docker exec -it my-redis redis-cli"
+if command -v docker >/dev/null 2>&1; then
+    alias dstatus="docker ps -a && docker images"
+    alias dpsa='docker ps -a'
+    alias dps='docker ps'
+    alias drmall='docker container prune -f'
+    alias drm='docker rm'
+    alias dstopall="docker stop \$(docker ps -q)"
+    alias drun='docker run'
+    alias dstop='docker stop'
+    alias dstart='docker start'
+    alias dkill='docker kill'
+    alias dimages='docker images'
+    alias redis="docker start -ai my-redis"
+    alias redis-cli="docker exec -it my-redis redis-cli"
+fi
 
 ### -----------------------------
 ### FUNCTIONS
