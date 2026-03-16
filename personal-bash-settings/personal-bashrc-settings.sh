@@ -1,22 +1,50 @@
-### Pavel Soroka's settings
-## Add to .bashrs line:
-## source ~/.personal-bashrc-settings.sh
+### -----------------------------
+### PROMPT
+### -----------------------------
+# Git branch + dirty flag
+parse_git_branch() {
+    local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    if [ -n "$branch" ]; then
+        local dirty=$(git status --porcelain 2>/dev/null)
+        if [ -n "$dirty" ]; then
+            echo "($branch*)"
+        else
+            echo "($branch)"
+        fi
+    fi
+}
 
-# PS1="\[\e]0; \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\[\033[00m\]\[\033[01;34m\]\w\[\033[00m\]\$ (parse_git_branch)"
-PS1="\[\e[32m\]\w \[\e[91m\]\$(parse_git_branch)\[\e[00m\]$ "
+# Python/Conda environment
+venv_prompt() {
+    if [ -n "$VIRTUAL_ENV" ]; then
+        echo "[venv:$(basename $VIRTUAL_ENV)]"
+    elif [ -n "$CONDA_DEFAULT_ENV" ]; then
+        echo "[conda:$CONDA_DEFAULT_ENV]"
+    fi
+}
 
-# export PATH="$HOME/.local/bin:$PATH"
+# Interactive PS1
+PS1="\[\e[32m\]\w \[\e[33m\]\$(venv_prompt) \[\e[91m\]\$(parse_git_branch)\[\e[00m\]\$ "
+
+### -----------------------------
+### PATH
+### -----------------------------
 export PATH="$HOME/scripts:$HOME/anaconda3/bin:$HOME/.local/bin:$PATH"
 
+### -----------------------------
+### EDITOR
+### -----------------------------
 export EDITOR=gnome-text-editor
 
-## --- Aliases ---------------------------------------------------------------
+### -----------------------------
+### COMMON ALIASES
+### -----------------------------
 alias l="ls -1lh --group-directories-first --color=auto"
 alias la="ls -1lah --group-directories-first --color=auto"
-alias ls='ls --color=auto'
 alias md=mkdir
 alias cls=clear
 alias dirsize='du -h --max-depth=1'
+alias duh='du -h --max-depth=1'
 alias ds='du -hc --max-depth=1'
 alias weather="curl -3 wttr.in/Kharkov"
 alias mem="free -m"
@@ -25,40 +53,81 @@ alias hyber="systemctl suspend"
 alias ..="cd .."
 alias ...="cd ../.."
 alias na="nano -u"
-alias p3=python3
-alias ls='ls --color=auto'
 alias tr="tree -I '__pycache__|tmp.*|node_modules|\.git|venv|env'"
-alias pss='(echo "F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD"; ps -el | grep 'pts/[12]' | grep -v grep) | column -t'
 alias pi="ping example.com"
-
-# Find the process listening on a specific port (replace PORT with the desired port number)
-alias findport="sudo netstat -tuln | grep PORT"
-
+alias ports='ss -tulpn'
 alias greph="grep --color=auto"
 alias grep='grep --color=auto'
 alias hgrep="history | grep"
-alias p3=python3
-alias upd="sudo apt update; sudo apt upgrade"
+alias upd="sudo apt update && sudo apt upgrade"
 alias dfh="df -h"
 alias clip="xsel --input --clipboard <"
-alias von="source .venv/bin/activate"
-alias voff="deactivate"
+alias realusers="awk -F: '\$3 >= 1000 {print \$1, \$3}' /etc/passwd"
+alias lsusbblk='lsblk -o NAME,TRAN,SIZE,FSTYPE,LABEL,MOUNTPOINT,MODEL | grep -E "usb|NAME|sdb|sdc"'
+alias usbinfo=lsusbblk
+
+alias serve='python3 -m http.server 8000'
+alias serve-root='(cd ~ && python3 -m http.server 8000)'
+alias lns="cd ~/Courses/local-node-server/ && node server.js"
+### -----------------------------
+### VIRTUAL ENVIRONMENTS
+### -----------------------------
+alias von='[ -d .venv ] && source .venv/bin/activate || echo ".venv not found"'
+alias voff='command -v deactivate >/dev/null && deactivate || echo "No venv active"'
+alias vmake='python3 -m venv .venv && echo "Virtual env created in .venv"'
+
+### -----------------------------
+### CONDA & JUPYTER
+### -----------------------------
+alias jup='command -v conda >/dev/null && conda activate && jupyter notebook || echo "Conda not found"'
+
+### -----------------------------
+### HTML / PROJECT
+### -----------------------------
 alias htmlinit='inithtml.sh'
 
+### -----------------------------
+### DIRECTORIES
+### -----------------------------
 alias cde="cd ~/Documents/English"
+mdcd() { mkdir -p "$1" && cd "$1"; }
 
-alias jup="conda activate; jupyter notebook"
+### -----------------------------
+### CALCULATOR
+### -----------------------------
 alias ca='qalc'
 alias q='qalc'
+
+### -----------------------------
+### EDITORS
+### -----------------------------
 alias edit='gnome-text-editor'
 alias gedit='gnome-text-editor'
+alias ipy='ipython3'
+alias ptp='ptpython'
+
+### -----------------------------
+### CODE / PRETTIER
+### -----------------------------
+alias ml='make lint'
+alias mlf='make lint-fix'
+alias mt='make test'
+alias pretty='prettier --write .'
+
+### -----------------------------
+### ALARM
+### -----------------------------
 alias alarm=~/scripts/inspire.sh
+
+### -----------------------------
+### SYSTEM INFO
+### -----------------------------
 alias version='lsb_release -a'
 alias ver='lsb_release -a'
-alias ipy='ipython3'
-alias pretty='prettier -write .'
 
-# Net logging
+### -----------------------------
+### NET LOGGING / LOCATION
+### -----------------------------
 alias here-gosprom='echo flat_gosprom > ~/.current_location; export MY_PLACE=$(cat ~/.location_tag 2>/dev/null)'
 alias here-esenina='echo flat_esenina > ~/.current_location; export MY_PLACE=$(cat ~/.location_tag 2>/dev/null)'
 alias here-kolomenskaya='echo flat_kolomenskaya > ~/.current_location; export MY_PLACE=$(cat ~/.location_tag 2>/dev/null)'
@@ -66,60 +135,51 @@ alias whereami='cat ~/.current_location'
 alias netlog='cat -n ~/.local/share/netlog/speedtest_log.csv'
 alias nettail='(head -n1 ~/.local/share/netlog/speedtest_log.csv && tail -n 10 ~/.local/share/netlog/speedtest_log.csv)'
 
-## --- Docker aliases --------------------------------------------------------
+### -----------------------------
+### DOCKER ALIASES
+### -----------------------------
+if command -v docker >/dev/null 2>&1; then
+    alias dstatus="docker ps -a && docker images"
+    alias dpsa='docker ps -a'
+    alias dps='docker ps'
+    alias drmall='docker container prune -f'
+    alias drm='docker rm'
+    alias dstopall="docker stop \$(docker ps -q)"
+    alias drun='docker run'
+    alias dstop='docker stop'
+    alias dstart='docker start'
+    alias dkill='docker kill'
+    alias dimages='docker images'
+    alias redis="docker start -ai my-redis"
+    alias redis-cli="docker exec -it my-redis redis-cli"
+fi
 
-# Список всех контейнеров (включая остановленные) и образов
-alias dstatus="docker ps -a && docker images"
+### -----------------------------
+### FUNCTIONS
+### -----------------------------
+gccexe() { gcc "$1" -o "$(basename "$1" .c).exe"; }
 
-# Список всех контейнеров (включая остановленные)
-alias dpsa='docker ps -a'
-
-# Список только запущенных контейнеров
-alias dps='docker ps'
-
-# Удалить все остановленные контейнеры
-alias drmall='docker container prune -f'
-
-# Удалить конкретный контейнер по имени/ID
-alias drm='docker rm'
-
-# Останавливает запущенный контейнер, если он единственный
-# alias dstopone='bash ~/scripts/stop_the_only_running_docker_container.sh'
-
-# Останавливает все запущенные контейнеры
-alias dstopall="docker stop $(docker ps -q)"
-
-# Запустить (run) контейнер'
-alias drun='docker run'
-
-# Остановить контейнер
-alias dstop='docker stop'
-
-# Запусустить (start) контейнер
-alias dstart='docker stop'
-
-# Остановить контейнер жёстко
-alias dkill='docker kill'
-
-# Список образов
-alias dimages='docker images'
-
-## --- Functions -------------------------------------------------------------
-# Take notice also at custom commands
-# bac: /usr/local/bin/bac
-
-mdcd() {
-   mkdir -p "$1" && cd "$1";
+port() {
+    if [ -z "$1" ]; then
+        echo "Usage: port <number>"
+    else
+        ss -tulpn | grep ":$1"
+    fi
 }
 
-function gccexe() {
-    gcc "$1" -o "$(basename "$1" .c).exe"
+pss() {
+    local tty=$(tty | sed 's:/dev/::')
+    echo "F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD"
+    ps -el | grep "$tty" | grep -v grep | column -t
 }
 
-# alias bak='cp "$1" "$1".bak'
+servep() {
+  python3 -m http.server "${1:-8000}"
+}
 
-## --- git setup -------------------------------------------------------------
-# git aliases
+### -----------------------------
+### GIT ALIASES
+### -----------------------------
 alias gh='git log --pretty=format:"%C(yellow)%h %C(white)%ad | %C(green)%s%d %C(white)[%an]" --graph --date=short'
 alias gh1='gh -1'
 alias gh3='gh -3'
@@ -130,30 +190,20 @@ alias gl1='gl -1'
 alias gl3='gl -3'
 alias gl5='gl -5'
 alias gla='gl --all'
-alias gs='git status '
-alias ga='git add '
+alias gs='git status'
+alias ga='git add'
 alias gaa='git add .'
-alias gb='git branch '
+alias gb='git branch'
 alias gc='git commit'
 alias gd='git diff'
-alias gco='git checkout '
-# alias gcm='git checkout master'
+alias gco='git checkout'
 alias gcm='if git show-ref --verify --quiet refs/heads/master; then git checkout master; elif git show-ref --verify --quiet refs/heads/main; then git checkout main; else echo "No master or main branch found"; fi'
 alias grs='git restore'
 alias gst='git stash'
 alias gsp='git stash pop'
-alias gk='gitk --all&'
+alias gk='gitk --all &'
 alias gx='gitx --all'
 alias gp='git pull --rebase'
 alias gamend='git commit --amend --no-edit'
-alias got='git '    	# handling typos
-alias get='git '    	# handling typos
-
-parse_git_branch() {
- 	git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
-}
-
-## --- development -------------------------------------------------------------
-alias ml='make lint'
-alias mlf='make lint-fix'
-alias mt='make test'
+alias got='git'
+alias get='git'
